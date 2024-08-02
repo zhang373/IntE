@@ -1,6 +1,6 @@
 from DataSet.dataset_processing import Get_Process_Full_Data
 from scipy.stats import pearsonr, spearmanr, kendalltau
-from Robort2 import call_with_messages_Qwen, Cal_sim
+from Robort2 import call_with_messages_Qwen, Cal_sim, put_score_in_data
 from stage_I import build_R2_prompt_Question_Set
 from concurrent.futures import ThreadPoolExecutor
 from Robort3 import Judge_sample
@@ -25,33 +25,39 @@ def process_batch(batch, Current_Question, CoT, Predefined_Task_Information_Sett
             sim_result = Cal_sim(response[0], Question=Current_Question, Cal_mode_Singel=False,
                                  CoT=CoT, Predefined_Task_Information_Setting=Predefined_Task_Information_Setting,
                                  StageI=False,domen=domens)
-            #sim_result = Cal_sim_1(response[0], Current_Question)
+            # TODO: correct this
+            print("The score caled in the batch: ", sim_result)
             if isinstance(sim_result, list):
+                # multi condition mode
                 response[2].extend(sim_result)
             else:
+                # single condition mode
                 response[2].append(sim_result)
     return batch  # 返回更新后的批次
 
-def init_domens(inputpair, Current_Question, CoT, Predefined_Task_Information_Setting, Cal_mode_Singel=False):
-    out = []
-    out.append(Cal_sim(inputpair[0], Question=Current_Question, Cal_mode_Singel=Cal_mode_Singel, CoT=CoT,
-                       Predefined_Task_Information_Setting=Predefined_Task_Information_Setting,StageI=True))
+def init_domens(inputquery, Current_Question, CoT, Predefined_Task_Information_Setting, Cal_mode_Singel=False):
+    score = Cal_sim(inputquery[0], Question=Current_Question, Cal_mode_Singel=Cal_mode_Singel, CoT=CoT,
+                       Predefined_Task_Information_Setting=Predefined_Task_Information_Setting, StageI=False)
+    out = put_score_in_data(score, inputquery)
     return out
 
-def Cal_Q_R2_run(Q, R2_Prompt_dict=None, batch_size=5, Predefined_Task_Information_Setting_dict=None):
+def Cal_Q_R2_run(Q, R2_Prompt_dict=None, batch_size=1, Predefined_Task_Information_Setting_dict=None):
     # 遍历Q字典中的每个Question
     for question_key in Q:
         Current_Question = Q[question_key][[item for item in list(Q[question_key]) if item.startswith("questions_")][0]]
         current_R2_Prompt = R2_Prompt_dict[question_key]
         Predefined_Task_Information_Setting = Predefined_Task_Information_Setting_dict[question_key]
-        domens = init_domens(inputpair=Q[question_key][[item for item in list(Q[question_key].keys()) if item.endswith("_Prompt")][0]][0],
-                             CoT=current_R2_Prompt, Predefined_Task_Information_Setting=Predefined_Task_Information_Setting,
-                             Cal_mode_Singel=False, Current_Question=Current_Question)
+        domens = []
+        domens.append(init_domens(inputquery=Q[question_key][[item for item in list(Q[question_key].keys()) if item.endswith("_Prompt")][0]][0],
+                                  CoT=current_R2_Prompt, Predefined_Task_Information_Setting=Predefined_Task_Information_Setting,
+                                  Cal_mode_Singel=False, Current_Question=Current_Question))
+
         # 遍历每个以'_Prompt'结尾的数据项
         for prompt_key in filter(lambda k: k.endswith('_Prompt'), Q[question_key].keys()):
             responses = Q[question_key][prompt_key]
             # 分批处理响应
-            for i in range(0, len(responses), batch_size):
+            for i in range(1):#, len(responses), batch_size):
+                print(f"line 59 in stage II: we are currently in loop {i}")
                 batch = responses[i:i + batch_size]
                 # 并行处理每个批次
                 with ThreadPoolExecutor() as executor:
@@ -59,10 +65,12 @@ def Cal_Q_R2_run(Q, R2_Prompt_dict=None, batch_size=5, Predefined_Task_Informati
                     updated_batch = future.result()
                 # 更新Q字典中的响应列表
                 Q[question_key][prompt_key][i:i + len(updated_batch)] = updated_batch
-            for item in updated_batch:
-                _, output = Judge_sample(old_domens=1, new_data=item,model_name='qwen-turbo', easy=0.5)
-                if output:
-                    domens.append(item)
+                for item in updated_batch:
+                    print("line 65 in stage 2:", domens)
+                    _, output = Judge_sample(old_domens=domens, new_data=item, model_name='qwen-turbo', easy=0.5)
+                    if output:
+                        domens.append(item)
+                break
     # 打印修改后的Q字典，以验证结果
     print("We have finish C-STS Cal! Please Check Q!\n")
     return Q  # 返回更新后的Q字典
@@ -208,7 +216,7 @@ if __name__ == "__main__":
         Test_Connection()
 
     # Cal sudo label by tuned LLM Agent
-    Q = Cal_Q_R2_run(Q=Q, R2_Prompt_dict=prompt_R2_dict, batch_size=5, Predefined_Task_Information_Setting_dict=Predefined_Task_Information_Setting_dict)
+    Q = Cal_Q_R2_run(Q=Q, R2_Prompt_dict=prompt_R2_dict, batch_size=1, Predefined_Task_Information_Setting_dict=Predefined_Task_Information_Setting_dict)
     print("We have finish the cal and result example is shown here: \n", Q['Question_1']['responses_chatglm_dataset_Prompt'][0],"\n")
 
     # Cal Corr between sudo label and real label

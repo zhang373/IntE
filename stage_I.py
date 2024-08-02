@@ -38,6 +38,7 @@ def build_R2_prompt_Single_Question(Q_SQ, conditions, Dataset_Name='Personal_Fin
         current_draft = Draft_Modifier(model_name="qwen-turbo", Draft=Draft_history,
                                        ReviewInfo=Review_history, iter_loop=1,
                                        Predefined_Task_Information_Setting=Predefined_Task_Information_Setting)
+        # TODO: modify the process here! and deal with the bugs!
         # print("Current Draft Prompt after modified by LLM Agent: ", current_draft)
         Draft_history.append(current_draft)
 

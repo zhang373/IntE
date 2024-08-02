@@ -30,14 +30,14 @@ class DatasetGenerator:
         if self.distribution == 'normal':
             points = np.random.normal(params['loc'], params['scale'], (num_points, 2))
         elif self.distribution == 't':
-            points = np.random.standard_t(params['df'], (num_points, 2))
+            points = np.random.standard_t(params['df'], (num_points, 2)) + params['loc']
         elif self.distribution == 'uniform':
             points = np.random.uniform(params['loc'] - params['scale'], params['loc'] + params['scale'],
                                        (num_points, 2))
         elif self.distribution == 'exponential':
-            points = np.random.exponential(params['scale'], (num_points, 2))
+            points = np.random.exponential(params['scale'], (num_points, 2)) + params['loc']
         elif self.distribution == 'binomial':
-            points = np.random.binomial(params['n'], params['p'], (num_points, 2))
+            points = np.random.binomial(params['n'], params['p'], (num_points, 2)) + params['loc']
         else:
             raise ValueError("Unsupported distribution type")
 

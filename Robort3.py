@@ -72,8 +72,8 @@ def build_dataset_increase_prompt(old_domens, new_data, easy=0.7):
     prompt += f"Kindly review the sample ：{new_data}"
 
     prompt += "response in the following python dict format:{'Reason': your reason, 'Accept': use True/False to show " \
-              "if we need to accept it}. You only need to give me the dict, " \
-              "you should give the final judge based on the acquisition difficulty I told you before."
+              "if we need to accept it (you should give the final judge based on the acquisition difficulty I told you before.)}. " \
+              "You only need to give me the python dict and keep the format!"
 
     return prompt
 

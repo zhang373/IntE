@@ -58,21 +58,27 @@ class DatasetGenerator:
             self.datasets.append(points)
         self.datasets = np.vstack(self.datasets)
 
-    def introduce_errors(self, error_rate, error_strength):
+    def introduce_errors(self, error_rate, error_strength, out_source_data=None):
+        if out_source_data is None:
+            data = self.datasets
+        else:
+            data = out_source_data
         if error_strength is not None:
             self.error_strength = error_strength
-        num_errors = int(error_rate * self.datasets.shape[0])
-        error_indices = np.random.choice(self.datasets.shape[0], num_errors, replace=False)
-        error_points = self.datasets[error_indices]
+        num_errors = int(error_rate * data.shape[0])
+        error_indices = np.random.choice(data.shape[0], num_errors, replace=False)
+        error_points = data[error_indices]
 
         for i in error_indices:
             while True:
                 shift = np.random.normal(0, self.error_strength * self.params['error_shift'], 2)
-                new_point = self.datasets[i, :2] + shift
-                if not np.any(np.all(self.datasets == np.append(new_point, self.datasets[i, 2]), axis=1)):
-                    self.datasets[i, :2] = new_point
+                new_point = data[i, :2] + shift
+                if not np.any(np.all(data == np.append(new_point, data[i, 2]), axis=1)):
+                    data[i, :2] = new_point
                     break
-        return self.datasets
+        if out_source_data is None:
+            self.datasets = data
+        return data
 
     # Original plot function
     # def plot_datasets(self, original_datasets=None, title='Dataset', save_path=None):
@@ -128,10 +134,14 @@ class DatasetGenerator:
         non_overlapping_points = [point for point in list2 if (point[0], point[1]) not in points_set]
         return non_overlapping_points
 
-    def convert_dataset_format(self):
-        # Convert dataset format from [[x1, y1, class_label1]] to [[(x1, y1), class_label1]]
-        converted_datasets = [((x, y), label) for x, y, label in self.datasets]
-        return converted_datasets
+    def convert_dataset_format(self, out_source_data=None):
+        if out_source_data is None:
+            # Convert dataset format from [[x1, y1, class_label1]] to [[(x1, y1), class_label1]]
+            converted_datasets = [((x, y), label) for x, y, label in self.datasets]
+            return converted_datasets
+        else:
+            converted_datasets = [((x, y), label) for x, y, label in out_source_data]
+            return converted_datasets
 
     def get_dataset(self):
         return self.datasets

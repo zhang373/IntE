@@ -159,7 +159,7 @@ class GNMR_calculator:
         return out_GNMR_pos,  # from 0-1, 1 stands for Good
 
 class DDR_calculator:
-    def __init__(self, data, distance_table, norm_factor=4):
+    def __init__(self, data, distance_table, norm_factor=2):
         self.distance_table = distance_table
         self.distance_dict = {tuple(sorted((entry[0], entry[1]))): entry[2] for entry in distance_table}
         self.data_DDR = data
@@ -220,7 +220,7 @@ class DDR_calculator:
         return out_DDR_pos
 
 class DC_calculator:
-    def __init__(self, data, distance_table, norm_factor=2):
+    def __init__(self, data, distance_table, norm_factor=1):
         self.distance_table = distance_table
         self.distance_dict = {tuple(sorted((entry[0], entry[1]))): entry[2] for entry in distance_table}
         self.data_DR = data
@@ -285,7 +285,7 @@ class OODRCalculator:
                     A_mp.add((x, y))
             if len(A_mcs) > 0:
                 sum_OODR += (len(A_mcs) - len(A_mcs.intersection(A_mp))) / len(A_mcs)
-        temp = P / sum_OODR if sum_OODR!=0 else 100   # All correct
+        temp = P / sum_OODR if sum_OODR!=0 else 5   # All correct
         OODR_pos = min(temp/self.norm_factor, 1)
         return OODR_pos
 

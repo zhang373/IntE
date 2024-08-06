@@ -91,7 +91,7 @@ class Clusterer:
         hierarchical_labels = self.remap_labels(self.hierarchical_clustering())
         #dbscan_labels = self.remap_labels(self.dbscan_clustering())
         spectral_labels = self.remap_labels(self.spectral_clustering())
-        mean_shift_labels = self.remap_labels(self.mean_shift_clustering())
+        # mean_shift_labels = self.remap_labels(self.mean_shift_clustering())
         fuzzy_cmeans_labels = self.remap_labels(self.fuzzy_cmeans_clustering())
         label_list = ["kmeans_labels", "hierarchical_labels", "spectral_labels", "mean_shift_labels", "fuzzy_cmeans_labels"]
         # 将所有标签合并到一个矩阵中
@@ -100,7 +100,7 @@ class Clusterer:
             hierarchical_labels,
             # dbscan_labels,
             spectral_labels,
-            mean_shift_labels,
+            # mean_shift_labels,
             fuzzy_cmeans_labels
         ]).T
 

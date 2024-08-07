@@ -191,7 +191,7 @@ def Traverse_and_Retrieve(Dataset_Name='Personal_Financial_Literacy'):
                 # 构建完整的文件路径
                 file_path = os.path.join(subdir, file)
                 # 读取 JSON 文件
-                with open(file_path, 'r') as json_file:
+                with open(file_path, 'r', encoding='utf-8') as json_file:
                     try:
                         # 加载 JSON 数据
                         data = json.load(json_file)

@@ -11,6 +11,10 @@ def build_R2_prompt_Single_Question(Q_SQ, conditions, Dataset_Name='Personal_Fin
         print("Current Q_SQ.keys() ", Q_SQ.keys())
         print("Current conditions: ", conditions)
     Predefined_Task_Information_Setting_Prompt, Predefined_Task_Information_Setting = build_R1_init_prompt(Dataset_Name, conditions)
+
+    All_Drafts = []  # New list to store all drafts
+    All_Outcomes = []  # New list to store all outcomes
+
     Draft_history = []
     Review_history = []
     Outcome_history = []
@@ -31,8 +35,17 @@ def build_R2_prompt_Single_Question(Q_SQ, conditions, Dataset_Name='Personal_Fin
                       StageI=True).output.choices[0].message.content
         print("The outcome by using current built prompt\n", out)
         Outcome_history.append(out)
-        user_input = input("User input reviewing, enter ['exit', 'quit'] to finish: ")
-        if user_input.lower() in ['exit', 'quit']:  # Check if the user wants to quit
+
+        user_input = input("User input reviewing, enter ['exit', 'restart'] to finish or restart: ")
+        if user_input.lower() == 'restart':
+            All_Drafts.append(Draft_history)
+            All_Outcomes.append(Outcome_history)
+            Draft_history.clear()
+            Outcome_history.clear()
+            Draft_history.append(R2_result_Draft)
+
+            continue  # Restart the loop
+        elif user_input.lower() in ['exit', 'quit']:  # Check if the user wants to quit
             break
         Review_history.append(user_input)
         agent_description = "You are a helpful assistant and know will about how to modify past data based on reviewing information."
@@ -46,7 +59,7 @@ def build_R2_prompt_Single_Question(Q_SQ, conditions, Dataset_Name='Personal_Fin
     result = Draft_history[-1]
 
     if Test_Mode:
-        return result, Predefined_Task_Information_Setting, Draft_history, Review_history, Outcome_history
+        return result, Predefined_Task_Information_Setting, Draft_history, Review_history, Outcome_history, All_Drafts, All_Outcomes
     else:
         return result, Predefined_Task_Information_Setting
 
@@ -77,6 +90,9 @@ def build_R2_prompt_Single_Question_without_agents(Q_SQ, conditions, Dataset_Nam
         print("Current Q_SQ.keys() ", Q_SQ.keys())
         print("Current conditions: ", conditions)
 
+    All_Drafts = []  # New list to store all drafts
+    All_Outcomes = []  # New list to store all outcomes
+
     Draft_history = []
     Outcome_history = []
     print("In this human-computer interaction comparative study, your task is to craft a set of prompts "
@@ -94,7 +110,7 @@ def build_R2_prompt_Single_Question_without_agents(Q_SQ, conditions, Dataset_Nam
         print("Current initial Draft_history is: \n", Draft_history)
 
     while True:
-        draft_prompt = input("Please input your current prompt.")
+        draft_prompt = input("Please input your current prompt: ")
         Draft_history.append(draft_prompt)
         draft_prompt = build_draft_prompt_without_agents(draft_prompts=draft_prompt,sample=sample,conditions=conditions)
         R2_result = call_with_messages_Qwen(content=draft_prompt,
@@ -103,11 +119,17 @@ def build_R2_prompt_Single_Question_without_agents(Q_SQ, conditions, Dataset_Nam
         print("Current prompt will lead to this outcome: ", R2_result)
         Outcome_history.append(R2_result)
 
-        user_input = input("User input reviewing, enter ['exit', 'quit'] to finish: ")
-        if user_input.lower() in ['exit', 'quit']:  # Check if the user wants to quit
+        user_input = input("\n User input reviewing, enter ['exit', 'restart'] to finish or restart, else press any key and enter ")
+        if user_input.lower() == 'restart':
+            All_Drafts.append(Draft_history)
+            All_Outcomes.append(Outcome_history)
+            Draft_history.clear()
+            Outcome_history.clear()
+            continue  # Restart the loop
+        elif user_input.lower() in ['exit', 'quit']:  # Check if the user wants to quit
             break
 
-    return Draft_history, Outcome_history
+    return Draft_history, Outcome_history, All_Drafts, All_Outcomes
 
 
 if __name__ == "__main__":

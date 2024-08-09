@@ -36,6 +36,9 @@ def build_R2_prompt_Single_Question(Q_SQ, conditions, Dataset_Name='Personal_Fin
         print("The outcome by using current built prompt\n", out)
         Outcome_history.append(out)
 
+        # TODO: modify the process here! and deal with the bugs!
+        print("\n Current Draft Prompt after modified by LLM Agent: \n", Draft_history[-1])
+
         user_input = input("User input reviewing, enter ['exit', 'restart'] to finish or restart: ")
         if user_input.lower() == 'restart':
             All_Drafts.append(Draft_history)
@@ -52,8 +55,7 @@ def build_R2_prompt_Single_Question(Q_SQ, conditions, Dataset_Name='Personal_Fin
         current_draft = Draft_Modifier(model_name="qwen-turbo", Draft=Draft_history,
                                        ReviewInfo=Review_history, iter_loop=1,
                                        Predefined_Task_Information_Setting=Predefined_Task_Information_Setting)
-        # TODO: modify the process here! and deal with the bugs!
-        print("\nCurrent Draft Prompt after modified by LLM Agent: \n", current_draft)
+
         Draft_history.append(current_draft)
 
     result = Draft_history[-1]
@@ -76,12 +78,13 @@ def build_R2_prompt_Question_Set(Dataset_Name, Q):
     # print(prompt_R2_list)
     return prompt_R2_dict, Predefined_Task_Information_Setting_dict
 
-def build_draft_prompt_without_agents(draft_prompts, sample, conditions):
+def build_draft_prompt_without_agents(draft_prompts, sample, conditions, add_structure=False):
     draft_prompts_out = draft_prompts
     draft_prompts_out += f"give the c-sts of current test pairs: {str(sample)} under the conditions:{conditions}. " \
-                         f"You should response in the following python " \
-                  "dict format:{'Reason': your reason, 'Score': {'condition1': score1, 'condition2': score2, ...} " \
-                  "You only need to give me the dict and must follow the format!"
+                         f"You should response in the following python "
+    if add_structure:
+        draft_prompts_out+="dict format:{'Reason': your reason, 'Score': {'condition1': score1, 'condition2': score2, ...} " \
+                      "You only need to give me the dict and must follow the format!"
     return draft_prompts_out
 
 def build_R2_prompt_Single_Question_without_agents(Q_SQ, conditions, Dataset_Name='Personal_Financial_Literacy', Print_Flag=True):
@@ -100,7 +103,7 @@ def build_R2_prompt_Single_Question_without_agents(Q_SQ, conditions, Dataset_Nam
           "Specifically, the LLM should be able to assess the semantic similarity between pairs of texts based on conditional information. "
           "It is crucial that the LLM develops a general ability that performs well across different tasks (universal problem-solving). "
           "Please design a comprehensive general prompt to achieve this objective. "
-          "We have add the condition into the prompt, you just need to finish the rest of it.")
+          "We have add the condition and sample into the prompt, you just need to finish the rest of it. Please do not add test sample!")
     print("Current condition we are working on: \n", conditions)
     sample = Q_SQ[[item for item in list(Q_SQ.keys()) if item.endswith("_Prompt")][0]][0][0]
     print("You can test your prompt on this demo data pair:\n", sample)

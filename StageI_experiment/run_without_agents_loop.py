@@ -11,7 +11,7 @@ import re
 import copy
 
 if __name__ == "__main__":
-    Dataset_Names = ['Computer_Human_Interaction','Personal_Financial_Literacy']
+    Dataset_Names = ['Computer_Human_Interaction', 'Personal_Financial_Literacy']
     file_name = copy.deepcopy(input("Please input your name here: "))
     for Dataset_Name in Dataset_Names:
         Q = Get_Process_Full_Data(Dataset_Name=Dataset_Name, Print_Flag=False)
@@ -29,6 +29,7 @@ if __name__ == "__main__":
                 build_R2_prompt_Single_Question_without_agents(Q[item], conditions, Dataset_Name, Print_Flag=False)
         print("\nWe have finish all the process in stage I, Go ahead to access all the data!")
 
-        StageI_indenpendt_experiment_exp_data = {"Draft_history_dict": Draft_history_dict, "Outcome_history": Outcome_history_dict}
+        StageI_indenpendt_experiment_exp_data = {"Draft_history_dict": Draft_history_dict, "Outcome_history": Outcome_history_dict,
+                                                 "All_Drafts": All_Drafts_dict, "All_Outcomes": All_Outcomes_dict}
         save_data_to_directory(data=StageI_indenpendt_experiment_exp_data, directory='StageI_experiment/result/',
                                file_name="Human_"+Dataset_Name+"_"+str(file_name), Clear=False)

@@ -2,7 +2,8 @@ from Robort1 import call_with_messages_Qwen, Draft_Modifier, build_R1_init_promp
 from Robort2 import Cal_sim
 from DataSet.dataset_processing import Get_Process_Full_Data
 import re
-
+import tkinter as tk
+from tkinter import messagebox
 
 
 def build_R2_prompt_Single_Question(Q_SQ, conditions, Dataset_Name='Personal_Financial_Literacy', Print_Flag=True, Test_Mode=False):
@@ -136,7 +137,21 @@ def build_R2_prompt_Single_Question_without_agents(Q_SQ, conditions, Dataset_Nam
 
 
 if __name__ == "__main__":
-    Dataset_Name = 'Personal_Financial_Literacy'
-    Q = Get_Process_Full_Data(Dataset_Name=Dataset_Name, Print_Flag=False)
-    prompt_R2_dict, Predefined_Task_Information_Setting_dict = build_R2_prompt_Question_Set(Dataset_Name, Q)
-    print(prompt_R2_dict)
+    # 主窗口初始化
+    window = tk.Tk()
+    window.title("Prompt Writing Application")
+    Dataset_Names = ['Personal_Financial_Literacy']
+    for Dataset_Name in Dataset_Names:
+        Q = Get_Process_Full_Data(Dataset_Name=Dataset_Name, Print_Flag=False)
+        print(f"Current Dataset is {Dataset_Name} and we are doing the reviewing")
+
+        Draft_history_dict = {}
+        Outcome_history_dict = {}
+        All_Drafts_dict = {}
+        All_Outcomes_dict = {}
+
+        for item in Q.keys():
+            print(f"\nWe are Processing: {item} in Dataset {Dataset_Name}!")
+            conditions = re.findall(r'\((.*?)\)', Q[item][[item for item in list(Q[item].keys()) if item.startswith("Question_")][0]])
+            # setup_page2(window, Q[item], conditions, Dataset_Name='Personal_Financial_Literacy')
+            break

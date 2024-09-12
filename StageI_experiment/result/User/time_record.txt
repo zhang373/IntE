@@ -1,4 +1,8 @@
-register_time: 2024-09-11 20:21:04
+register_time: 2024-09-12 23:20:18
 We currently working on the question: 5. Question 5 is the example case. 
-Question_Selection_time: 2024-09-11 20:21:06
-normal_test_init_time: 2024-09-11 20:21:08
+Question_Selection_time: 2024-09-12 23:20:23
+agent_test_init_time: 2024-09-12 23:20:36
+init_draft_building start: 2024-09-12 23:20:36
+draft building calling model: 2024-09-12 23:20:36
+draft building model calling finished: 2024-09-12 23:20:48
+get test result on draft model: 2024-09-12 23:20:52

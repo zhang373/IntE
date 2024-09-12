@@ -45,6 +45,7 @@ def call_with_messages_Qwen(content, agent_des, model_name="qwen-plus"):
             response.request_id, response.status_code,
             response.code, response.message
         ))
+
 def cal_no_con_pairs(Question, pair_1, pair_2, prompt=None):
     if prompt != None:
         Prompt = prompt

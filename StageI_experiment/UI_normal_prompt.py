@@ -1,5 +1,6 @@
 import tkinter as tk
 import os
+from datetime import datetime
 file_path = "StageI_experiment/result/username_entry.txt"
 import json
 
@@ -26,24 +27,25 @@ class Page2App:
         with open(file_path, 'r', encoding='utf-8') as file:
             self.user_register_name = file.read()
 
+
         # 宏观信息区域
         self.macro_info_label = tk.Label(self.master, text="The general instructions are here!", anchor="nw",
                                          justify="left")
         self.macro_info_label.grid(row=0, column=0, columnspan=2, padx=10, pady=5)
-        self.macro_info_UI = tk.Text(self.master, height=5, width=50)
+        self.macro_info_UI = tk.Text(self.master, height=10, width=200)
         self.macro_info_UI.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
         # 历史prompt和output区域
         self.prompt_history_label = tk.Label(self.master, text="The history prompt are here!", anchor="nw",
                                              justify="left")
         self.prompt_history_label.grid(row=2, column=0, padx=10, pady=(5, 0))
-        self.prompt_history_UI = tk.Text(self.master, height=5, width=25)
+        self.prompt_history_UI = tk.Text(self.master, height=15, width=80)
         self.prompt_history_UI.grid(row=3, column=0, padx=10, pady=5)
 
         self.outcome_history_label = tk.Label(self.master, text="The history outcome are here!", anchor="nw",
                                               justify="left")
         self.outcome_history_label.grid(row=2, column=1, padx=10, pady=(5, 0))
-        self.outcome_history_UI = tk.Text(self.master, height=5, width=25)
+        self.outcome_history_UI = tk.Text(self.master, height=15, width=80)
         self.outcome_history_UI.grid(row=3, column=1, padx=10, pady=5)
 
 
@@ -55,8 +57,8 @@ class Page2App:
                                               justify="left")
         self.current_outcome_label.grid(row=4, column=1, padx=10, pady=(5, 0))
 
-        self.current_outcome_UI = tk.Text(self.master, height=5, width=25)
-        self.current_prompt_UI = tk.Text(self.master, height=5, width=25)
+        self.current_outcome_UI = tk.Text(self.master, height=5, width=80)
+        self.current_prompt_UI = tk.Text(self.master, height=5, width=80)
         self.current_prompt_UI.grid(row=5, column=0, padx=10, pady=5)
         self.current_outcome_UI.grid(row=5, column=1, padx=10, pady=5)
 
@@ -65,21 +67,21 @@ class Page2App:
                                            text="Please input your prompt here! \n enter ['exit', 'restart'] to finish or restart.",
                                            anchor="nw", justify="left")
         self.prompt_input_label.grid(row=6, column=0, columnspan=2, padx=10, pady=(5, 0))
-        self.prompt_input_UI = tk.Entry(self.master, width=50)
+        self.prompt_input_UI = tk.Entry(self.master, width=200)
         self.prompt_input_UI.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
 
         # 输入处理输出框
         self.processed_prompt_label = tk.Label(self.master, text="Processed input prompt is shown here!", anchor="nw",
                                                justify="left")
         self.processed_prompt_label.grid(row=8, column=0, columnspan=2, padx=10, pady=(5, 0))
-        self.processed_prompt_input_UI = tk.Text(self.master, height=5, width=25)
+        self.processed_prompt_input_UI = tk.Text(self.master, height=5, width=200)
         self.processed_prompt_input_UI.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
 
         # 输入状态显示框
         self.input_status_label = tk.Label(self.master, text="Please input prompt and click submit", anchor="nw",
                                            justify="left")
         self.input_status_label.grid(row=10, column=1, padx=10, pady=(5, 0))
-        self.input_statu_UI = tk.Text(self.master, height=5, width=25)
+        self.input_statu_UI = tk.Text(self.master, height=2, width=50)
         self.input_statu_UI.grid(row=11, column=1, padx=10, pady=5)
 
         # 提交按钮
@@ -103,6 +105,9 @@ class Page2App:
         self.Dataset_Name = 'Personal_Financial_Literacy'
         self.conditions = conditions
         self.init_blocks()
+        timestamp_path = "StageI_experiment/result/" + self.user_register_name + '/time_record.txt'
+        with open(timestamp_path, 'a', encoding='utf-8') as file:
+            file.write(f"normal_test_init_time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
 
     # 清空输出函数
@@ -122,7 +127,7 @@ class Page2App:
         self.prompt_history_label.config(text="The history prompt are here!")
         self.outcome_history_label.config(text="The history outcome are here!")
         self.prompt_input_label.config(
-            text="Please input your prompt here! \n enter ['exit', 'restart'] to finish or restart.")
+            text="Please input your prompt here! \n enter ['begin', 'exit', 'restart'] to begin experimrnt, finish or restart.")
         self.input_status_label.config(text="Please input prompt and click submit")
 
     # 处理输入
@@ -134,40 +139,71 @@ class Page2App:
 
         user_input = self.prompt_input_UI.get()
         if user_input.lower() == 'restart':
-            self.All_Drafts.append(self.Draft_history)
-            self.All_Outcomes.append(self.Outcome_history)
+            self.All_Drafts.append(self.Draft_history.copy())
+            self.All_Outcomes.append(self.Outcome_history.copy())
             self.Draft_history.clear()
             self.Outcome_history.clear()
             self.clear_outputs()
             self.prompt_input_UI.delete(0, tk.END)
             self.input_statu_UI.insert(tk.END, "We just Restarted! Reenter prompt and click!")
 
+            timestamp_path = "StageI_experiment/result/" + self.user_register_name + '/time_record.txt'
+            with open(timestamp_path, 'a', encoding='utf-8') as file:
+                file.write(f"Restart time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+        elif user_input.lower() == 'begin':
+            self.current_outcome_UI.insert(tk.END, "You begin the test!")
+            timestamp_path = "StageI_experiment/result/" + self.user_register_name + '/time_record.txt'
+            with open(timestamp_path, 'a', encoding='utf-8') as file:
+                file.write(f"Begin time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
         elif user_input.lower() in ['exit', 'quit']:  # Check if the user wants to quit
             self.master.destroy()
+
+            timestamp_path = "StageI_experiment/result/" + self.user_register_name + '/time_record.txt'
+            with open(timestamp_path, 'a', encoding='utf-8') as file:
+                file.write(f"Exit time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+            self.All_Drafts.append(self.Draft_history.copy())
+            self.All_Outcomes.append(self.Outcome_history.copy())
             data_path = "StageI_experiment/result/" + self.user_register_name
             with open(os.path.join(data_path, "ALL_Draft_normal_prompt_data.json"), 'w') as f:
                 json.dump(self.All_Drafts, f)
             with open(os.path.join(data_path, "ALL_Outcome_normal_prompt_data.json"), 'w') as f:
                 json.dump(self.All_Outcomes, f)
 
-
         else:
+            timestamp_path = "StageI_experiment/result/" + self.user_register_name + '/time_record.txt'
+            with open(timestamp_path, 'a', encoding='utf-8') as file:
+                file.write(f"prompt is entered: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
             self.input_statu_UI.insert(tk.END, "Prompt is being Processing!")
             draft_prompt = user_input
-            self.Draft_history.append(draft_prompt)
+
             self.current_prompt_UI.insert(tk.END, draft_prompt)
 
             # 构建提示
             processed_prompt = build_draft_prompt_without_agents(draft_prompt, self.sample, self.conditions)
             self.processed_prompt_input_UI.insert(tk.END, processed_prompt)
 
+            timestamp_path = "StageI_experiment/result/" + self.user_register_name + '/time_record.txt'
+            with open(timestamp_path, 'a', encoding='utf-8') as file:
+                file.write(f"start to call model: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
             # 调用模型
-            R2_result = call_with_messages_Qwen(content=processed_prompt,
+            R2_result = \
+                call_with_messages_Qwen(content=processed_prompt,
                                                 agent_des=f"You are a useful agent and works will in {self.Dataset_Name} domain.",
                                                 model_name="qwen-turbo")["output"]["choices"][0]["message"]["content"]
-            self.Outcome_history.append(R2_result)
             self.current_outcome_UI.insert(tk.END, R2_result)
 
+            timestamp_path = "StageI_experiment/result/" + self.user_register_name + '/time_record.txt'
+            with open(timestamp_path, 'a', encoding='utf-8') as file:
+                file.write(f"model calling finished: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+            # update information
+            self.Outcome_history.append(R2_result)
+            self.Draft_history.append(draft_prompt)
             # 清除输入框内容
             self.prompt_input_UI.delete(0, tk.END)
             self.input_statu_UI.delete('1.0', tk.END)
@@ -179,6 +215,7 @@ def setup_page2_app(the_window, Q_SQ, conditions, Dataset_Name='Personal_Financi
     app = Page2App(the_window, Q_SQ, conditions, Dataset_Name)
 
 def setup_page2(the_windows, Q_SQ, conditions, Dataset_Name='Personal_Financial_Literacy'):
+
     page2_window = tk.Toplevel(the_windows)
     page2_window.title("Page 2 - Prompt Writing Application")
     setup_page2_app(page2_window, Q_SQ, conditions, Dataset_Name)

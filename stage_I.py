@@ -81,10 +81,9 @@ def build_R2_prompt_Question_Set(Dataset_Name, Q):
 
 def build_draft_prompt_without_agents(draft_prompts, sample, conditions, add_structure=False):
     draft_prompts_out = draft_prompts
-    draft_prompts_out += f"give the c-sts of current test pairs: {str(sample)} under the conditions:{conditions}. " \
-                         f"You should response in the following python "
+    draft_prompts_out += f"give the c-sts of current test pairs: {str(sample)} under the conditions:{conditions}. "
     if add_structure:
-        draft_prompts_out+="dict format:{'Reason': your reason, 'Score': {'condition1': score1, 'condition2': score2, ...} " \
+        draft_prompts_out+="You should response in the following python dict format:{'Reason': your reason, 'Score': {'condition1': score1, 'condition2': score2, ...} }" \
                       "You only need to give me the dict and must follow the format!"
     return draft_prompts_out
 

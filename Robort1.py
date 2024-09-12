@@ -138,6 +138,8 @@ def build_massage(Draft, ReviewInfo, iter_loop=None):
                     #continue
                 temp_review = {'role': 'user', 'content': ReviewInfo[index]}
                 massage.append(temp_review)
+    temp_review = {'role': 'user', 'content': "Please only return the final modified prompt!"}
+    massage.append(temp_review)
     return massage
 
 def build_human_prompt(Predefined_Task_Information_Setting):
